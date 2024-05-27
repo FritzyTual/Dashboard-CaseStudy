@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= config.server_title %></title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
+	<link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<meta name="theme-color" content="#7952b3">
+
+    <style>
+		.bd-placeholder-img {
+			font-size: 1.125rem;
+			text-anchor: middle;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			user-select: none;
+		}
+
+		body {
+            background-color: lightblue;
+        }
+
+		@media (min-width: 768px) {
+			.bd-placeholder-img-lg {
+				font-size: 3.5rem;
+			}
+		}
+    </style>
+	<link href="https://getbootstrap.com/docs/5.0/examples/dashboard/dashboard.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+</head>
+<body>
+    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+		<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"><%= config.server_title %></a>
+		<button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+		<div class="navbar-nav">
+			<div class="nav-item text-nowrap">
+				<a class="nav-link px-3" href="#">Profile</a>
+			</div>
+		</div>
+	</header>
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				<div class="position-sticky pt-3">
+					<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Saved reports</span>
+						<a class="link-secondary" href="#" aria-label="Add a new report">
+							<span data-feather="plus-circle"></span>
+						</a>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item">
+						<a class="nav-link" href="#">
+							<span data-feather="file-text"></span>
+							Current month
+						</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">
+								<span data-feather="file-text"></span>
+								Last quarter
+							</a>
+						</li>
+					</ul>
+				</div>
+			</nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+				<div class="row mt-3">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-header d-flex justify-content-between align-items-center">
+								<h3>Activity over 24 hours</h3>
+								 
+							</div>
+							<p class="m-3 mb-0"><small>Updates every 3 seconds</small></p>
+							<div class="card-body">
+								<canvas id="initChart" width="auto" height="400"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-3">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-header d-flex justify-content-between align-items-center">
+								<h3>EMS Real-Time Data</h3>
+								<button id="deleteAllBtn" class="btn btn-danger">Delete All Data</button>
+							</div>
+							<p class="m-3 mb-0"><small>Updates every 3 seconds</small></p>
+							<div class="card-body">
+								<div class="table-responsive">
+									<table id="dTable" class="table table-striped table-sm">
+										<thead>
+											<tr>
+												<th>Date Collected</th>
+												<th>Current</th>
+												<th>Voltage</th>
+												<th>Power</th>
+												<th>Energy</th>
+												<th>Cost</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="card-body">
+								<p class="m-3 mb-0">Cost Calculation: P(power) = V * I; E(energy) = P / 1 hr; C(cost) = E * rate_per_kwh(0.12)</p>
+								<p class="m-3 mb-0">Cost Summary: ₱ <b><span id="cost_summary"></span></b></p>
+								<p class="m-3 mb-0">Estimated Monthly Cost Summary: ₱ <b><span id="mcost_summary"></span></b></p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<footer class="m-3">
+					<p class="mb-0">&copy; Copyright 2024 <%= config.server_title %></p>
+					<p class="mb-0">Members: <%= config.members %></p>
+				</footer>
+			</main>
+		</div>
+	</div>
+
+	<script src="https://getbootstrap.com/docs/5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script>
+    <script>
+		$(document).ready(function()
+		{
+			var table = $('#dTable').DataTable({order: [[1, 'desc']]})
+			function updateDataTable()
+			{
+				$.ajax(
+				{
+					url: '/latestData',
+					method: 'GET',
+					success: function(data)
+					{
+						var currentPage = table.page()
+
+						updateChart(data)
+
+						table.clear()
+
+						let csy = document.getElementById('cost_summary')
+						let mcsy = document.getElementById('mcost_summary')
+						let cost = 0
+						data.forEach(function(doc)
+						{
+							let costToNum = parseFloat(doc.cost)
+							if (!isNaN(costToNum))
+								cost += costToNum
+
+							var timestamp = new Date(parseInt(doc._id.toString().substring(0, 8), 16) * 1000) // conversion by gpt
+							var formattedTimestamp = timestamp.toLocaleString()
+							table.row.add([formattedTimestamp, doc.current, doc.voltage, doc.power, doc.energy, doc.cost, '<button class="btn btn-danger btn-delete" data-id="' + doc._id + '">Delete</button>'])
+						})
+						csy.innerHTML = cost.toFixed(2)
+						mcsy.innerHTML = cost.toFixed(2) * 720
+
+						table.draw(false)
+                        table.page(currentPage).draw(false)
+					}
+				})
+			}
+
+			updateDataTable()
+			// update table every 3 seconds
+			setInterval(updateDataTable, 3000)
+
+			// delete button function
+			$('#dTable').on('click', '.btn-delete', function() 
+			{
+				var id = $(this).data('id');
+				$.ajax({
+					url: '/delete/' + id,
+					method: 'DELETE',
+					success: function(response)
+					{
+						alert(response.message)
+						updateDataTable()
+					},
+					error: function(error) {
+						alert('An error occurred: ' + error.responseJSON.message)
+					}
+				})
+			})
+
+			// delete all, button function
+			$('#deleteAllBtn').on('click', function()
+			{
+                if (confirm('Are you sure you want to delete all data?'))
+				{
+                    $.ajax(
+					{
+                        url: '/deleteAll',
+                        method: 'DELETE',
+                        success: function(response)
+						{
+                            alert(response.message)
+                            updateDataTable()
+                        },
+                        error: function(error) {
+                            console.error('Error deleting all data:', error)
+                            alert('An error occurred: ' + (error.responseJSON && error.responseJSON.message ? error.responseJSON.message : 'Unknown error'))
+                        }
+                    })
+                }
+            })
+
+			// initialize graph data
+			var ctx = document.getElementById('initChart').getContext('2d')
+			var initChart = new Chart(ctx,
+			{
+                type: 'line',
+                data:
+				{
+                    labels: [],
+                    datasets:
+					[
+						{
+							label: 'Current (I) Reading',
+							data: [],
+							backgroundColor: 'rgba(75, 192, 192, 0.2)',
+							borderColor: 'rgba(75, 192, 192, 1)',
+							borderWidth: 1
+						}, {
+							label: 'Energy Emitted',
+							data: [],
+							backgroundColor: 'rgba(0, 255, 0, 0.2)',
+							borderColor: 'rgba(0, 255, 0, 1)',
+							borderWidth: 1
+						}
+					]
+                },
+                options:
+				{
+					responsive: true,
+                    maintainAspectRatio: false,
+                    scales:
+					{
+                        x:
+						{
+                            type: 'time',
+                            time: {
+                                unit: 'hour',
+                                tooltipFormat: 'MMM dd, HH:mm', // tooltip
+                                displayFormats: {
+                                    hour: 'HH:mm' // format for the x-axis label
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y:
+						{
+                            title: {
+                                display: true,
+                                text: 'Values'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            })
+
+            function updateChart(data)
+			{
+                var labels = [] // array
+                var counts = [] // array
+				var sensorReadings = [] // array
+
+                var hourlyCounts = Array(24).fill(0)
+				var hourlySensorReadings = Array(24).fill(0);
+
+				// iterate all data collected to 
+                data.forEach(doc =>
+				{
+                    var timestamp = new Date(parseInt(doc._id.toString().substring(0, 8), 16) * 1000) // time gpt conversion
+                    var hour = timestamp.getHours()
+                    hourlyCounts[hour] += 1
+					hourlySensorReadings[hour] += parseFloat(doc.energy)
+                })
+
+				// iterate collected pushed data from 1 to 24 to hour
+                for (var i = 0; i < 24; i++)
+				{
+					labels.push(new Date().setHours(i, 0, 0, 0))
+					counts.push(hourlyCounts[i])
+					sensorReadings.push(hourlySensorReadings[i]);
+                }
+
+				// then initialize for display
+                initChart.data.labels = labels
+                initChart.data.datasets[0].data = counts
+				initChart.data.datasets[1].data = sensorReadings
+                initChart.update()
+            }
+		})
+    </script>
+</body>
+</html>

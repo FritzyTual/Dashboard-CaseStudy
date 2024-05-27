@@ -1,0 +1,13 @@
+{
+	"members": "Bernadette, Fritzy Mae",
+    "server_title": "Smart EMS for Home Appliances",
+	"server_port": 3000,
+    "database":
+	{
+        "db_uri": "mongodb+srv://iambrn6:CalHlTXFGAbiIpc5@semscluster.zj6cqct.mongodb.net/?retryWrites=true&w=majority&appName=semscluster",
+        "db_name": "iambrn6",
+        "db_pass": "CalHlTXFGAbiIpc5",
+        "db_mongodb_database": "ems",
+        "db_mongodb_collection": "appliances"
+    }
+}
